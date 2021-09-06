@@ -1,7 +1,8 @@
 # Reserve-plus
-_Diseño y Programación de Software Multiplataforma 01T_
+### Diseño y Programación de Software Multiplataforma 01T
 _Aplicación de restaurantes y órdenes_
 
+## Estudiantes 👨‍💻
 | Nombres | Carnet |
 |--|--| 
 | CORNEJO TORRES, ROLANDO JOSÉ | CT180058 | 
