@@ -1,4 +1,4 @@
-https://udbedu-my.sharepoint.com/:v:/g/personal/ct180058_alumno_udb_edu_sv/ER5FDqWXlAZCgl-uhavCESYBDMlR09YxPaqIb8eJg_PIxg?e=53Flu2# Reserve-plus
+#Reserve-plus
 ### Diseño y Programación de Software Multiplataforma 01T
 _Aplicación de restaurantes y órdenes_
 
