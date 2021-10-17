@@ -58,6 +58,7 @@ const HomeScreen = () => {
                     </View>
                 </ScrollView>
                 <Text style={styles.title}>Restaurantes</Text>
+                <View style={{flex:1}}>
                 <FlatList data={restaurantes}
                     renderItem={({ item }) =>
                         <TouchableOpacity style={{ height: '20vh',borderRadius: 20,margin:10, }}>
@@ -67,6 +68,7 @@ const HomeScreen = () => {
                             </View>
                             </BackgroundImage>
                         </TouchableOpacity>} />
+                    </View>
             </View>
         </ScrollView>
     )
@@ -100,7 +102,7 @@ const styles = StyleSheet.create({
         color: '#FE2746'
     },
     title: {
-        fontSize: '1.25rem',
+        fontSize:20,
         fontWeight: 'bold',
         borderBottomColor: 'lightgray',
         borderBottomWidth: 2,
