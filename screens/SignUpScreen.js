@@ -1,92 +1,47 @@
-import { useNavigation } from '@react-navigation/core';
-import React, { useState, useEffect } from 'react'
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import firebase from '../firebase';
-import { Icon } from 'react-native-elements'
-const LoginScreen = () => {
+import { useNavigation } from '@react-navigation/core';
+import React, { useState, useEffect } from 'react'
 
-    const navigation = useNavigation()
+export default function SignUpScreen() {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    useEffect(() => {
-        const unsubscribe = firebase.auth.onAuthStateChanged(user => {
-            if (user)
-                navigation.replace('Home')
-        })
-        return unsubscribe;
-    }, [])
-
+    const [password_redo,setPassword_redo]=useState('');
 
     const handleSignUp = () => {
+        password!=password_redo?alert('Las contraseñas no coinciden'):
+
         firebase.auth.createUserWithEmailAndPassword(email, password)
             .then(userCredentials => {
                 const user = userCredentials.user
+                firebase.db.collection('usuarios').add({
+                    correo:user.email,
+                })
                 console.log(user.email)
             }).catch(error => {
                 error.code == 'auth/weak-password' ? alert('Contraseña muy débil, debe ser de 6 caracteres o más') : error.code == 'auth/email-already-in-use' ? alert('Este usuario ya existe') : error.code == 'auth/invalid-email' ? alert('El correo está mal escrito') : alert(error.message)
             })
     }
 
-
-    const handleLogin = () => {
-        firebase.auth.signInWithEmailAndPassword(email, password)
-            .then(userCredentials => {
-                const user = userCredentials.user
-                console.log('logged with email')
-            })
-            .catch(error => {
-                error.code == 'auth/wrong-password' ? alert('Contraseña incorrecta') : error.code == 'auth/invalid-email' ? alert('El correo está mal escrito') : alert(error.message)
-            })
-    }
-
-    const handleGoogle = ()=>{
-        firebase.auth.signInWithPopup(firebase.provider)
-  .then((result) => {
-    /** @type {firebase.auth.OAuthCredential} */
-    var credential = result.credential;
-
-    // This gives you a Google Access Token. You can use it to access the Google API.
-    var token = credential.accessToken;
-    // The signed-in user info.
-    var user = result.user;
-    // ...
-    try {
-        firebase.db.collection('usuarios').where('correo','==',user.email).get()
-    } catch (error) {
-        firebase.db.collection('usuarios').add({
-            correo:user.email,
-        })
-    }
-    
-  }).catch((error) => {console.log(error.message)})
-    }
-
     return (
         <KeyboardAvoidingView style={styles.container} behavior='height'>
-            <Text style={styles.title}>Reserve+</Text>
+            <Text style={styles.title}>Registro</Text>
             <View style={styles.inputconntainer}>
                 <TextInput placeholder='Correo' value={email} onChangeText={text => setEmail(text.replace('\s+', ''))} style={styles.input} />
                 <TextInput placeholder='Contraseña' value={password} onChangeText={text => setPassword(text)} style={styles.input} secureTextEntry />
+                <TextInput placeholder='Contraseña-redo' value={password_redo} onChangeText={text => setPassword_redo(text)} style={styles.input} secureTextEntry />
             </View>
             <View style={styles.buttoncontainer}>
-                <TouchableOpacity onPress={handleLogin} style={styles.button}>
-                    <Text style={styles.buttonText}>Iniciar sesión</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={()=>navigation.navigate('SignUp')} style={[styles.button, styles.buttonOutLine]}>
+                
+                <TouchableOpacity onPress={handleSignUp} style={[styles.button, styles.buttonOutLine]}>
                     <Text style={styles.buttonOutLineText}>Registrarse</Text>
                 </TouchableOpacity>
             </View>
-            <View style={styles.inputconntainer}>
-            <TouchableOpacity onPress={handleGoogle} style={[styles.button, styles.buttonOutLine, {marginVertical:15}]}>
-                    <Text style={styles.buttonOutLineText}> <Icon name='google' type='antdesign' color='#FE2746'/>   Iniciar con Google</Text>
-                </TouchableOpacity>
-            </View>
+            
         </KeyboardAvoidingView>
     )
 }
-
-export default LoginScreen
 
 const styles = StyleSheet.create({
     inputconntainer: {
@@ -137,8 +92,7 @@ const styles = StyleSheet.create({
     buttonOutLineText: { color: '#FE2746', fontWeight: 'bold' },
     title:{
         fontWeight:'bold',
-        fontSize:50,
+        fontSize:30,
         marginVertical:10
     }
-
 })
