@@ -41,7 +41,7 @@ const HomeScreen = () => {
                     restaurantes.push({key:docs.id,nombre,color})
                 })
                 setRestaurantes(restaurantes)
-                console.log(restaurantes)
+                //console.log(restaurantes)
                 setLoading(false)
             })
         }
