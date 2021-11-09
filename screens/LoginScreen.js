@@ -14,9 +14,13 @@ const LoginScreen = () => {
         const unsubscribe = firebase.auth.onAuthStateChanged(async (user) => {
             //Si el usuario ya tiene iniciada la sesion, se pasa al home
             if (user){
+                console.log(user.email)
+                await AsyncStorage.setItem('@userId', '')
+                //console.log(await firebase.db.collection('usuarios').where('correo','==',user.email).get())
                 //Guardamos en AsyncStorage el id del usuario en la base de datos ya que se utiliza en todas las operaciones que se realizan
-                firebase.db.collection('usuarios').where('correo','==',user.email).get().then((querySnapshot)=>{querySnapshot.forEach(async(doc)=>{await AsyncStorage.setItem('@userId', doc.id)})})
-                console.log(await AsyncStorage.getItem('@userId'))
+              const consulta= await firebase.db.collection('usuarios').where('correo','==',user.email).get()//.then(async(querySnapshot)=>{}).then(console.log(await AsyncStorage.getItem('@userId')))
+              await AsyncStorage.setItem('@userId', consulta.docs[0].id)
+               console.log(await AsyncStorage.getItem('@userId'))
                 navigation.replace('Home')
             }
         })
@@ -57,8 +61,14 @@ const LoginScreen = () => {
     // The signed-in user info.
     var user = result.user;
     // ...
+
+    firebase.db.collection('usuarios').where('correo','==',user.email).get().then((querySnapshot)=>{if(querySnapshot.empty){ firebase.db.collection('usuarios').add({
+        correo:user.email,
+    })}})
+
     try {
         //Chequeamos primero si ya existe el usuario en la base de datos
+        console.log(user.email)
         firebase.db.collection('usuarios').where('correo','==',user.email).get()
     } catch (error) {
         //si no, se crea el registro del usuario en la base de datos
