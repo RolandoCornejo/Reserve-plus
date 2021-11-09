@@ -1,8 +1,9 @@
 import { useNavigation } from '@react-navigation/core';
 import React, { useState, useEffect } from 'react'
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import auth, {provider} from '../firebase';
+import firebase from '../firebase';
 import { Icon } from 'react-native-elements'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const LoginScreen = () => {
 
     const navigation = useNavigation()
@@ -10,27 +11,32 @@ const LoginScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(user => {
-            if (user)
+        const unsubscribe = firebase.auth.onAuthStateChanged(async (user) => {
+            //Si el usuario ya tiene iniciada la sesion, se pasa al home
+            if (user){
+                //Guardamos en AsyncStorage el id del usuario en la base de datos ya que se utiliza en todas las operaciones que se realizan
+                firebase.db.collection('usuarios').where('correo','==',user.email).get().then((querySnapshot)=>{querySnapshot.forEach(async(doc)=>{await AsyncStorage.setItem('@userId', doc.id)})})
+                console.log(await AsyncStorage.getItem('@userId'))
                 navigation.replace('Home')
+            }
         })
         return unsubscribe;
     }, [])
 
 
-    const handleSignUp = () => {
-        auth.createUserWithEmailAndPassword(email, password)
+    /*const handleSignUp = () => {
+        firebase.auth.createUserWithEmailAndPassword(email, password)
             .then(userCredentials => {
                 const user = userCredentials.user
                 console.log(user.email)
             }).catch(error => {
                 error.code == 'auth/weak-password' ? alert('Contraseña muy débil, debe ser de 6 caracteres o más') : error.code == 'auth/email-already-in-use' ? alert('Este usuario ya existe') : error.code == 'auth/invalid-email' ? alert('El correo está mal escrito') : alert(error.message)
             })
-    }
+    }*/
 
 
     const handleLogin = () => {
-        auth.signInWithEmailAndPassword(email, password)
+        firebase.auth.signInWithEmailAndPassword(email, password)
             .then(userCredentials => {
                 const user = userCredentials.user
                 console.log('logged with email')
@@ -41,7 +47,7 @@ const LoginScreen = () => {
     }
 
     const handleGoogle = ()=>{
-        auth.signInWithPopup(provider)
+        firebase.auth.signInWithPopup(firebase.provider)
   .then((result) => {
     /** @type {firebase.auth.OAuthCredential} */
     var credential = result.credential;
@@ -51,6 +57,16 @@ const LoginScreen = () => {
     // The signed-in user info.
     var user = result.user;
     // ...
+    try {
+        //Chequeamos primero si ya existe el usuario en la base de datos
+        firebase.db.collection('usuarios').where('correo','==',user.email).get()
+    } catch (error) {
+        //si no, se crea el registro del usuario en la base de datos
+        firebase.db.collection('usuarios').add({
+            correo:user.email,
+        })
+    }
+    
   }).catch((error) => {console.log(error.message)})
     }
 
@@ -65,7 +81,7 @@ const LoginScreen = () => {
                 <TouchableOpacity onPress={handleLogin} style={styles.button}>
                     <Text style={styles.buttonText}>Iniciar sesión</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={handleSignUp} style={[styles.button, styles.buttonOutLine]}>
+                <TouchableOpacity onPress={()=>navigation.navigate('SignUp')} style={[styles.button, styles.buttonOutLine]}>
                     <Text style={styles.buttonOutLineText}>Registrarse</Text>
                 </TouchableOpacity>
             </View>
