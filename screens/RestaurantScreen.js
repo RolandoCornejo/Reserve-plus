@@ -63,24 +63,18 @@ export default function RestaurantScreen(props) {
         console.log(newTotal)
       }
     });
-    setTotal(newTotal.toFixed(2));
+    setTotal(newTotal);
   }
   //Envia la orden a la base de datos
   const calcularOrden = async () => {
 
     const user = await AsyncStorage.getItem('@userId')
     //Detalles de cliente y restaurante
-    let detalles = { restaurante: restauranteId, usuario: user, total: 0,fecha:new Date() }
+    let detalles = { restaurante: restauranteId, usuario: user, total: total,fecha:new Date() }
 
     let newOrden = restaurante.menu.filter((item) => {
       return (item.cantidad > 0)
     })
-
-    restaurante.menu.forEach(element => {
-      if (element.cantidad > 0) {
-        detalles.total += (element.precio * element.cantidad).toFixed(2);
-      }
-    });
     let final = { detalles, orden: newOrden }
 
     console.log(final);
@@ -94,9 +88,10 @@ export default function RestaurantScreen(props) {
       firebase.db.collection('reservaciones').doc(codigo).set(final).then((docref)=>{
         alert('Muestra el siguiente codigo al llegar al restaurante NO LO PIERDAS')
         alert(codigo)
+        navigation.goBack();
       })
     }catch(e){
-      console.log(e);
+      alert(e);
     }
     
   }
@@ -168,7 +163,7 @@ export default function RestaurantScreen(props) {
           </ListItem>
         ))
       }
-      <Text>Total: ${total}</Text>
+      <Text>Total: ${total.toFixed(2)}</Text>
       <Button
         onPress={() => { calcularOrden() }}
         title='Realizar orden'
