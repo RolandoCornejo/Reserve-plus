@@ -86,8 +86,8 @@ export default function RestaurantScreen(props) {
     }
     try{
       firebase.db.collection('reservaciones').doc(codigo).set(final).then((docref)=>{
-        alert('Muestra el siguiente codigo al llegar al restaurante NO LO PIERDAS')
-        alert(codigo)
+        alert('Orden realizada con éxito\nMuestra el siguiente codigo al llegar al restaurante')
+        alert('Anota este codigo y no lo pierdas\n'+codigo)
         navigation.goBack();
       })
     }catch(e){
@@ -107,15 +107,16 @@ export default function RestaurantScreen(props) {
 
   return (
     <View style={{ maxWidth: 2000, marginHorizontal: 'auto' }}>
+      {Platform.os=='web' && (
       <Button
         onPress={() => { showMode('date') }}
         title='Seleccionar fecha'
-      />
+      />)(
       <Button
         onPress={() => { showMode('time') }}
         title='Seleccionar hora'
-      />
-
+      />)
+}
       {show && (
         <DateTimePicker
         testID='Datetime'
@@ -125,9 +126,9 @@ export default function RestaurantScreen(props) {
         display='default'
         onChange={onchange}/>
       )}
-
-      <Text>{text}</Text>
-      <Text>MENÚ</Text>
+  
+      
+      <Text style={{marginVertical:5,fontSize:15,fontWeight:'bold',borderBottomWidth:2,borderBottomColor:'black'}}>MENÚ</Text>
       {
         restaurante.menu.map((item, i) => (
           <ListItem key={i} bottomDivider>
@@ -135,6 +136,7 @@ export default function RestaurantScreen(props) {
             <ListItem.Content>
               <ListItem.Title>{item.platillo}</ListItem.Title>
               <ListItem.Subtitle>${item.precio}</ListItem.Subtitle>
+              <ListItem.Subtitle>{item.descripcion}</ListItem.Subtitle>
             </ListItem.Content>
 
             <Button
@@ -163,7 +165,7 @@ export default function RestaurantScreen(props) {
           </ListItem>
         ))
       }
-      <Text>Total: ${total.toFixed(2)}</Text>
+      <Text style={{marginVertical:5,fontSize:15,fontWeight:'bold',textAlign:'center'}}>Total: ${total.toFixed(2)}</Text>
       <Button
         onPress={() => { calcularOrden() }}
         title='Realizar orden'
